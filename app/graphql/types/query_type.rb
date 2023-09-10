@@ -20,11 +20,28 @@ module Types
     # Add root-level fields here.
     # They will be entry points for queries on your schema.
 
-    # TODO: remove me
-    field :test_field, String, null: false,
-                               description: 'An example field added by the generator'
-    def test_field
-      'Hello World!'
+    field :invoices, [Types::InvoiceType], null: false do
+      description 'Returns a list of invoices'
+      argument :id, ID, required: false
+      argument :status, Types::InvoiceStatusType, required: false
+    end
+
+    def invoices(status: nil)
+      current_user = context[:current_user]
+      invoice = Invoice.all.where(user_id: current_user.id)
+      invoice = invoice.where(status:) if status.present?
+      invoice
+    end
+
+    field :companies, [Types::CompanyType], null: false do
+      description 'Returns a list of companies'
+      argument :id, ID, required: false
+    end
+
+    def companies(id: nil)
+      company = Company.all
+      company = company.where(id:) if id.present?
+      company
     end
   end
 end
